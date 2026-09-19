@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #05070a;
+  color: #e6f1f5;
+  font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Thin custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #16202c;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #22405280;
+}
+
+@layer components {
+  .panel {
+    @apply relative border border-nexus-line bg-nexus-panel/60 backdrop-blur-sm;
+  }
+  .panel-label {
+    @apply text-[10px] tracking-[0.25em] text-nexus-mute uppercase;
+  }
+  .corner-bracket::before,
+  .corner-bracket::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: #22d3ee66;
+  }
+  .corner-bracket::before {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+  .corner-bracket::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
+}
+
+.text-glow {
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.45);
+}
+
+/* subtle background grid */
+.hud-grid {
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
