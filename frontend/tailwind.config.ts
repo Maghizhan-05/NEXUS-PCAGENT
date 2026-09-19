@@ -23,22 +23,6 @@ export default {
           amber: "#f0a92e",
           silver: "#aab7d6",
         },
-        // Back-compat aliases so existing components inherit the new palette.
-        nexus: {
-          bg: "#080b16",
-          surface: "#0d1327",
-          raised: "#111a35",
-          line: "#20305c",
-          hair: "#16223f",
-          text: "#e8eeff",
-          mute: "#7a88ab",
-          faint: "#47526f",
-          cyan: "#2f6bff",
-          cyandim: "#1b3a86",
-          red: "#e5142a",
-          amber: "#f0a92e",
-          green: "#2f6bff",
-        },
       },
       fontFamily: {
         display: ["Oswald", "Impact", "system-ui", "sans-serif"],

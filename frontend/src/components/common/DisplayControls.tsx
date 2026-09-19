@@ -8,7 +8,7 @@ export function DisplayControls() {
   return (
     <div className="flex items-center gap-3">
       <div
-        className="flex items-center gap-0.5 border border-nexus-line"
+        className="flex items-center gap-0.5 border border-web-line"
         role="group"
         aria-label="Display scale"
       >
@@ -19,8 +19,8 @@ export function DisplayControls() {
             aria-pressed={scale === s}
             className={`px-2 py-1 font-mono text-[10px] tracking-wide transition-colors ${
               scale === s
-                ? "bg-nexus-cyan/15 text-nexus-cyan"
-                : "text-nexus-faint hover:text-nexus-mute"
+                ? "bg-web-blue/15 text-web-blue"
+                : "text-web-faint hover:text-web-mute"
             }`}
           >
             {Math.round(s * 100)}
@@ -33,7 +33,7 @@ export function DisplayControls() {
           onClick={fs.toggle}
           aria-label={fs.active ? "Exit fullscreen" : "Enter fullscreen"}
           title={fs.active ? "Exit fullscreen" : "Fullscreen"}
-          className="flex h-6 w-6 items-center justify-center border border-nexus-line text-nexus-mute transition-colors hover:text-nexus-cyan"
+          className="flex h-6 w-6 items-center justify-center border border-web-line text-web-mute transition-colors hover:text-web-blue"
         >
           {fs.active ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
         </button>

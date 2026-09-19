@@ -11,6 +11,8 @@ import { CpuPanel } from "@/components/telemetry/CpuPanel";
 import { MemoryPanel } from "@/components/telemetry/MemoryPanel";
 import { NetworkPanel } from "@/components/telemetry/NetworkPanel";
 import { DiskPanel } from "@/components/telemetry/DiskPanel";
+import { GpuPanel } from "@/components/telemetry/GpuPanel";
+import { BatteryPanel } from "@/components/telemetry/BatteryPanel";
 import { SystemStatusPanel } from "@/components/telemetry/SystemStatusPanel";
 import { ProcessPanel } from "@/components/processes/ProcessPanel";
 import { AlertPanel } from "@/components/alerts/AlertPanel";
@@ -18,6 +20,7 @@ import { VoiceInterface } from "@/components/voice/VoiceInterface";
 import { CommandConsole } from "@/components/common/CommandConsole";
 
 import { useTelemetry } from "@/hooks/useTelemetry";
+import { useSensors } from "@/hooks/useSensors";
 import { useDisplayScale } from "@/hooks/useDisplayScale";
 import { api } from "@/lib/api";
 import { useTelemetryStore } from "@/stores/telemetryStore";
@@ -29,6 +32,7 @@ import type { CoreState } from "@/types/telemetry";
 export default function App() {
   const [booting, setBooting] = useState(true);
   useTelemetry();
+  useSensors();
   useDisplayScale();
 
   const latest = useTelemetryStore((s) => s.latest);
@@ -92,6 +96,7 @@ export default function App() {
             <section className="flex min-h-0 flex-col gap-2 lg:gap-3 lg:overflow-y-auto">
               <CpuPanel />
               <MemoryPanel />
+              <GpuPanel />
               <SystemStatusPanel />
             </section>
 
@@ -102,6 +107,7 @@ export default function App() {
             <section className="flex min-h-0 flex-col gap-2 lg:gap-3 lg:overflow-y-auto">
               <NetworkPanel />
               <DiskPanel />
+              <BatteryPanel />
               <AlertPanel />
             </section>
           </div>

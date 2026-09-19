@@ -2,14 +2,55 @@
   "name": "nexus",
   "version": "1.0.0",
   "private": true,
-  "description": "NEXUS V1 — local AI system monitor & voice command center",
+  "description": "NEXUS — local AI system monitor & voice command center",
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev": "concurrently -n backend,frontend -c cyan,magenta \"npm:dev:backend\" \"npm:dev:frontend\"",
     "dev:backend": "cd backend && .venv/Scripts/python -m uvicorn app.main:app --reload --port 8000",
     "dev:frontend": "cd frontend && npm run dev",
-    "install:frontend": "cd frontend && npm install"
+    "install:frontend": "cd frontend && npm install",
+    "electron:build": "esbuild electron/main.ts electron/preload.ts --bundle --platform=node --target=node18 --format=cjs --external:electron --external:systeminformation --outdir=dist-electron",
+    "electron:launch": "wait-on http://localhost:5173 && electron .",
+    "electron:dev": "npm run electron:build && concurrently -k -n vite,electron -c magenta,green \"npm:dev:frontend\" \"npm:electron:launch\"",
+    "electron:preview": "npm run electron:build && electron ."
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.24.2",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.nexus.systemhud",
+    "productName": "NEXUS",
+    "files": [
+      "dist-electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "frontend/dist",
+        "to": "frontend"
+      },
+      {
+        "from": "backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!.venv/**",
+          "!__pycache__/**"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "directories": {
+      "output": "release"
+    }
+  },
+  "dependencies": {
+    "systeminformation": "^5.33.12"
   }
 }

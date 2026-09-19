@@ -31,7 +31,7 @@ export function ConnectionBadge() {
         {label}
       </span>
       {status === "live" && ageSeconds != null && (
-        <span className="font-mono text-[10px] text-nexus-faint">
+        <span className="font-mono text-[10px] text-web-faint">
           · {ageSeconds < 1 ? "now" : `${ageSeconds.toFixed(0)}s ago`}
         </span>
       )}

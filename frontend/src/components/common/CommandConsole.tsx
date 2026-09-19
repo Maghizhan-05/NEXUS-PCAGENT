@@ -92,11 +92,11 @@ export function CommandConsole() {
     <div className="panel">
       <div className="panel-head">
         <span className="panel-title">Console</span>
-        <span className="font-mono text-[9px] tracking-widest2 text-nexus-faint">help</span>
+        <span className="panel-tag text-web-faint">help</span>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2 font-mono text-[11px] leading-relaxed">
         {lines.map((l) => (
-          <div key={l.id} className={l.kind === "in" ? "text-nexus-cyan" : "text-nexus-mute"}>
+          <div key={l.id} className={l.kind === "in" ? "text-web-blue" : "text-web-mute"}>
             <pre className="whitespace-pre-wrap font-mono">{l.text}</pre>
           </div>
         ))}
@@ -107,16 +107,16 @@ export function CommandConsole() {
           run(input);
           setInput("");
         }}
-        className="flex items-center gap-1 border-t border-nexus-hair px-3 py-2"
+        className="flex items-center gap-1 border-t border-web-hair px-3 py-2"
       >
-        <ChevronRight size={12} className="text-nexus-cyan" />
+        <ChevronRight size={12} className="text-web-blue" />
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           spellCheck={false}
           aria-label="NEXUS command input"
           placeholder="type a command…"
-          className="flex-1 bg-transparent font-mono text-[11px] text-nexus-text placeholder:text-nexus-faint focus:outline-none"
+          className="flex-1 bg-transparent font-mono text-[11px] text-web-text placeholder:text-web-faint focus:outline-none"
         />
       </form>
     </div>

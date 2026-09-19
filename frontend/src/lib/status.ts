@@ -52,12 +52,20 @@ export function levelColor(level: StatusLevel): string {
   switch (level) {
     case "OPTIMAL":
     case "NORMAL":
-      return "#22d3ee";
+      return "#2f6bff"; // suit blue
     case "ELEVATED":
-      return "#7dd3fc";
+      return "#5b8cff";
     case "WARNING":
-      return "#f5b642";
+      return "#f0a92e"; // spider-sense amber
     case "CRITICAL":
-      return "#f04a4a";
+      return "#e5142a"; // spidey red
   }
+}
+
+/** Temperature thresholds (°C) → status level, for CPU/GPU thermals. */
+export function tempLevel(celsius: number): StatusLevel {
+  if (celsius >= 90) return "CRITICAL";
+  if (celsius >= 83) return "WARNING";
+  if (celsius >= 70) return "ELEVATED";
+  return "NORMAL";
 }

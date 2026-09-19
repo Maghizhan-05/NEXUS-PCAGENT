@@ -10,6 +10,10 @@ node_modules/
 dist/
 .vite/
 
+# Electron build outputs
+dist-electron/
+release/
+
 # Env & secrets
 .env
 .env.local
