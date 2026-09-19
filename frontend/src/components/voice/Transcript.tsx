@@ -11,7 +11,7 @@ export function Transcript() {
 
   if (transcript.length === 0) {
     return (
-      <p className="font-mono text-[10px] leading-relaxed text-nexus-faint">
+      <p className="font-mono text-[10px] leading-relaxed text-web-faint">
         “How is my system?” · “What's using the most memory?”
       </p>
     );
@@ -23,12 +23,12 @@ export function Transcript() {
         <div key={entry.id} className="flex gap-2">
           <span
             className={`shrink-0 font-mono text-[9px] tracking-wider ${
-              entry.role === "user" ? "text-nexus-faint" : "text-nexus-cyan"
+              entry.role === "user" ? "text-web-faint" : "text-web-blue"
             }`}
           >
             {entry.role === "user" ? "YOU" : "NX"}
           </span>
-          <span className="font-mono text-[11px] leading-snug text-nexus-text/85">{entry.text}</span>
+          <span className="font-mono text-[11px] leading-snug text-web-text/85">{entry.text}</span>
         </div>
       ))}
       <div ref={endRef} />

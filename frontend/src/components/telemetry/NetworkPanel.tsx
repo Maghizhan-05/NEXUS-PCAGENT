@@ -17,7 +17,7 @@ export function NetworkPanel() {
     <PanelFrame
       title="Network"
       storageKey="network"
-      right={<span className="font-mono text-[9px] tracking-widest2 text-web-faint">60s</span>}
+      right={<span className="panel-tag text-web-faint">60s</span>}
       bodyClassName="flex flex-col gap-2"
     >
       <div className="grid grid-cols-2 gap-2 font-mono">

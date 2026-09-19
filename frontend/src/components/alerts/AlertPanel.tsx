@@ -20,7 +20,7 @@ export function AlertPanel() {
       alert={hasAlerts}
       right={
         <span
-          className="font-mono text-[9px] tracking-widest2"
+          className="panel-tag"
           style={{ color: hasAlerts ? "#e5142a" : "#47526f" }}
         >
           {hasAlerts ? `${alerts.length} ACTIVE` : "QUIET"}

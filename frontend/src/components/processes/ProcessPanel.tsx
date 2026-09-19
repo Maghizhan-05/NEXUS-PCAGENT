@@ -11,7 +11,7 @@ export function ProcessPanel() {
       onClick={() => setSort(key)}
       aria-pressed={sort === key}
       className={`font-mono text-[10px] tracking-wider transition-colors ${
-        sort === key ? "text-nexus-cyan" : "text-nexus-faint hover:text-nexus-mute"
+        sort === key ? "text-web-blue" : "text-web-faint hover:text-web-mute"
       }`}
     >
       {label}
@@ -30,7 +30,7 @@ export function ProcessPanel() {
       </div>
 
       <div className="min-h-0 flex-1 overflow-hidden px-3 pt-1.5">
-        <div className="grid grid-cols-[1fr_3rem_4.5rem] gap-x-2 border-b border-nexus-hair pb-1 font-mono text-[9px] uppercase tracking-wider text-nexus-faint">
+        <div className="grid grid-cols-[1fr_3rem_4.5rem] gap-x-2 border-b border-web-hair pb-1 font-mono text-[9px] uppercase tracking-wider text-web-faint">
           <span>Name</span>
           <span className="text-right">CPU</span>
           <span className="text-right">Memory</span>
@@ -40,17 +40,17 @@ export function ProcessPanel() {
           {processes.map((p) => (
             <div
               key={p.pid}
-              className="grid grid-cols-[1fr_3rem_4.5rem] gap-x-2 border-b border-nexus-hair/50 py-1 font-mono text-[11px]"
+              className="grid grid-cols-[1fr_3rem_4.5rem] gap-x-2 border-b border-web-hair/50 py-1 font-mono text-[11px]"
             >
-              <span className="truncate text-nexus-text/90" title={`${p.name} · pid ${p.pid}`}>
+              <span className="truncate text-web-text/90" title={`${p.name} · pid ${p.pid}`}>
                 {p.name}
               </span>
-              <span className="text-right tabular text-nexus-cyan">{p.cpu_percent.toFixed(0)}%</span>
-              <span className="text-right tabular text-nexus-mute">{formatBytes(p.memory_bytes, 0)}</span>
+              <span className="text-right tabular text-web-blue">{p.cpu_percent.toFixed(0)}%</span>
+              <span className="text-right tabular text-web-mute">{formatBytes(p.memory_bytes, 0)}</span>
             </div>
           ))}
           {processes.length === 0 && (
-            <div className="py-4 text-center font-mono text-[10px] text-nexus-faint">
+            <div className="py-4 text-center font-mono text-[10px] text-web-faint">
               reading process table…
             </div>
           )}

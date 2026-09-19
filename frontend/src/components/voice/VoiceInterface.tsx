@@ -28,7 +28,7 @@ export function VoiceInterface() {
     <div className="panel">
       <div className="panel-head">
         <span className="panel-title">Voice</span>
-        <span className="font-mono text-[9px] tracking-widest2" style={{ color: tone }}>
+        <span className="panel-tag" style={{ color: tone }}>
           {available ? STATE_LABEL[state] : "OFFLINE"}
         </span>
       </div>
@@ -51,7 +51,7 @@ export function VoiceInterface() {
             ) : connected ? (
               <Mic size={15} style={{ color: tone }} />
             ) : (
-              <MicOff size={15} className="text-nexus-faint" />
+              <MicOff size={15} className="text-web-faint" />
             )}
           </button>
           <div className="flex-1">
@@ -64,11 +64,11 @@ export function VoiceInterface() {
         </div>
 
         {!available && (
-          <p className="font-mono text-[9px] leading-relaxed text-nexus-faint">
+          <p className="font-mono text-[9px] leading-relaxed text-web-faint">
             Set ElevenLabs keys in backend/.env to enable voice control.
           </p>
         )}
-        {error && <p className="font-mono text-[9px] text-nexus-red">{error}</p>}
+        {error && <p className="font-mono text-[9px] text-web-red">{error}</p>}
       </div>
     </div>
   );

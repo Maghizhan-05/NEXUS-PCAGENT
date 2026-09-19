@@ -27,7 +27,7 @@ export function MetricCard({ label, storageKey, value, unit, meta, percent, kind
       right={
         level && (
           <span
-            className="font-mono text-[9px] tracking-widest2"
+            className="panel-tag"
             style={{ color: elevated ? color : "#47526f" }}
           >
             {level}

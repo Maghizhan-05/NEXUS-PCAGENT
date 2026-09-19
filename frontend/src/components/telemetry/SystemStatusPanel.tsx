@@ -39,7 +39,7 @@ export function SystemStatusPanel() {
       storageKey="system"
       alert={critical}
       right={
-        <span className="font-mono text-[9px] tracking-widest2" style={{ color }}>
+        <span className="panel-tag" style={{ color }}>
           {overall.level}
         </span>
       }

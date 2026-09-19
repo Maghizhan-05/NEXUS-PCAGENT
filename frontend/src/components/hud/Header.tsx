@@ -3,6 +3,7 @@ import { ConnectionBadge } from "@/components/common/ConnectionBadge";
 import { DisplayControls } from "@/components/common/DisplayControls";
 import { useTelemetryStore } from "@/stores/telemetryStore";
 import { formatClock } from "@/lib/formatters";
+import { isElectron } from "@/lib/env";
 
 export function Header() {
   const hostname = useTelemetryStore((s) => s.status?.system.hostname);
@@ -22,6 +23,11 @@ export function Header() {
         <span className="hidden font-mono text-[10px] uppercase tracking-widest2 text-web-faint sm:inline">
           web-shooter hud · {hostname ?? "local node"}
         </span>
+        {isElectron && (
+          <span className="hidden border border-web-line px-1.5 py-0.5 panel-tag text-web-blue md:inline">
+            DESKTOP
+          </span>
+        )}
       </div>
 
       <div className="flex items-center gap-4">

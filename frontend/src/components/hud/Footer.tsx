@@ -14,16 +14,16 @@ export function Footer() {
       : label.toLowerCase();
 
   return (
-    <footer className="flex shrink-0 items-center justify-between border-t border-nexus-line px-4 py-1.5 font-mono text-[10px] text-nexus-faint">
+    <footer className="flex shrink-0 items-center justify-between border-t border-web-line px-4 py-1.5 font-mono text-[10px] text-web-faint">
       <div className="flex items-center gap-4">
         <span>
-          local node · <span className="text-nexus-mute">{hostname ?? "—"}</span>
+          local node · <span className="text-web-mute">{hostname ?? "—"}</span>
         </span>
         <span className="hidden sm:inline">telemetry · {updated}</span>
       </div>
       <div className="flex items-center gap-4">
         <span className="hidden md:inline">
-          session <span className="tabular text-nexus-mute">{uptime ? formatUptime(uptime) : "—"}</span>
+          session <span className="tabular text-web-mute">{uptime ? formatUptime(uptime) : "—"}</span>
         </span>
         <span className="font-display uppercase tracking-widest2 text-web-faint">
           Spider<span className="text-web-red">·</span>Web HUD v0.1
