@@ -14,5 +14,7 @@ interface Window {
     isElectron: boolean;
     platform: string;
     versions: { electron: string; chrome: string; node: string };
+    getSensors?: () => Promise<unknown>;
+    onSensors: (cb: (data: unknown) => void) => () => void;
   };
 }

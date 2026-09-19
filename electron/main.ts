@@ -1,8 +1,9 @@
-import { app, BrowserWindow, Tray, Menu, nativeImage, shell } from "electron";
+import { app, BrowserWindow, Tray, Menu, nativeImage, shell, ipcMain } from "electron";
 import { spawn, type ChildProcess } from "node:child_process";
 import http from "node:http";
 import path from "node:path";
 import { existsSync } from "node:fs";
+import { readSensors, startSensorLoop, stopSensorLoop } from "./sensors";
 
 const DEV = !app.isPackaged;
 const BACKEND_HOST = "127.0.0.1";
@@ -204,6 +205,12 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(async () => {
     createTray();
     createWindow();
+
+    // Renderer can pull the latest sensor snapshot on demand (initial paint).
+    ipcMain.handle("nexus:get-sensors", () => readSensors());
+    // And receive a push every couple of seconds.
+    startSensorLoop(() => mainWindow, 2000);
+
     await startBackend();
 
     app.on("activate", () => {
@@ -214,6 +221,7 @@ if (!app.requestSingleInstanceLock()) {
 
   app.on("before-quit", () => {
     quitting = true;
+    stopSensorLoop();
     stopBackend();
   });
 
