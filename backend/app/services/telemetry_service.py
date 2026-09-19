@@ -3,6 +3,7 @@ single failure never crashes a collection cycle."""
 from __future__ import annotations
 
 import platform
+import sys
 import time
 
 import psutil
@@ -36,6 +37,34 @@ class TelemetryService:
         if proc:
             return proc
         return f"{platform.machine()} CPU"
+
+    @staticmethod
+    def _resolve_os_label() -> str:
+        """Human-readable OS name.
+
+        On Windows, ``platform.release()`` reports "10" even on Windows 11 —
+        the only reliable signal is the build number (>= 22000 => Windows 11).
+        We never hardcode an edition; we derive it from the actual build.
+        """
+        system = platform.system()
+        if system != "Windows":
+            release = platform.release()
+            return f"{system} {release}".strip()
+
+        build = 0
+        try:
+            build = sys.getwindowsversion().build  # type: ignore[attr-defined]
+        except Exception:
+            try:
+                build = int(platform.version().split(".")[2])
+            except Exception:
+                build = 0
+
+        if build >= 22000:
+            return "Windows 11"
+        if build > 0:
+            return "Windows 10"
+        return "Windows"
 
     def cpu(self) -> CpuTelemetry:
         freq = None
@@ -85,7 +114,7 @@ class TelemetryService:
         boot = psutil.boot_time()
         return SystemTelemetry(
             hostname=platform.node(),
-            platform=f"{platform.system()} {platform.release()}",
+            platform=self._resolve_os_label(),
             cpu_model=self._cpu_model,
             boot_time=boot,
             uptime=max(0.0, time.time() - boot),

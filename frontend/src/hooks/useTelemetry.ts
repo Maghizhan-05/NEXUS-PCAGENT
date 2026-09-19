@@ -1,58 +1,100 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { api, wsUrl } from "@/lib/api";
 import { useTelemetryStore } from "@/stores/telemetryStore";
 import { useAlertStore } from "@/stores/alertStore";
 import type { TelemetrySnapshot } from "@/types/telemetry";
 
 /**
- * Opens the telemetry WebSocket with auto-reconnect, polls the full system
- * status + alerts on a slower cadence, and keeps the stores in sync.
+ * Owns the single telemetry WebSocket plus a slower HTTP poll for the full
+ * status + alerts. The socket lifecycle is StrictMode-safe:
+ *
+ * - The connect is scheduled on a 0ms timer, so React's dev double-mount
+ *   cancels the throwaway connection before a socket is ever created.
+ * - Every handler is guarded by a per-effect `disposed` flag, so a stale
+ *   socket can never overwrite the live connection state or spawn an orphan
+ *   reconnect timer (the bug that caused perpetual "RECONNECTING").
  */
 export function useTelemetry() {
-  const setConnected = useTelemetryStore((s) => s.setConnected);
-  const pushSnapshot = useTelemetryStore((s) => s.pushSnapshot);
-  const setStatus = useTelemetryStore((s) => s.setStatus);
-  const setActive = useAlertStore((s) => s.setActive);
-  const wsRef = useRef<WebSocket | null>(null);
-  const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const closedRef = useRef(false);
-
   useEffect(() => {
-    closedRef.current = false;
+    const { setConnection, pushSnapshot } = useTelemetryStore.getState();
+    let disposed = false;
+    let ws: WebSocket | null = null;
+    let everOpened = false;
+    let connectTimer: ReturnType<typeof setTimeout> | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let openWatchdog: ReturnType<typeof setTimeout> | null = null;
+
+    const OPEN_TIMEOUT = 6000; // force-close a socket that never finishes opening
 
     const connect = () => {
-      if (closedRef.current) return;
-      const ws = new WebSocket(wsUrl());
-      wsRef.current = ws;
+      if (disposed) return;
+      setConnection(everOpened ? "reconnecting" : "connecting");
+      const socket = new WebSocket(wsUrl());
+      ws = socket;
 
-      ws.onopen = () => setConnected(true);
-      ws.onmessage = (evt) => {
+      // Watchdog: a half-open connect (e.g. backend restarting behind the
+      // proxy) can hang in CONNECTING forever without firing onclose. If we
+      // don't reach OPEN in time, force a close so the retry path runs.
+      openWatchdog = setTimeout(() => {
+        if (disposed || socket.readyState === WebSocket.OPEN) return;
+        try {
+          socket.close();
+        } catch {
+          /* onclose drives the retry */
+        }
+      }, OPEN_TIMEOUT);
+
+      socket.onopen = () => {
+        if (openWatchdog) clearTimeout(openWatchdog);
+        if (disposed) return;
+        everOpened = true;
+        setConnection("connected");
+      };
+      socket.onmessage = (evt) => {
+        if (disposed) return;
         try {
           pushSnapshot(JSON.parse(evt.data) as TelemetrySnapshot);
         } catch {
           /* ignore malformed frame */
         }
       };
-      ws.onclose = () => {
-        setConnected(false);
-        if (!closedRef.current) {
-          reconnectRef.current = setTimeout(connect, 2000);
+      socket.onclose = () => {
+        if (openWatchdog) clearTimeout(openWatchdog);
+        if (disposed) return;
+        setConnection("reconnecting");
+        reconnectTimer = setTimeout(connect, 2000);
+      };
+      socket.onerror = () => {
+        try {
+          socket.close();
+        } catch {
+          /* onclose handles the retry */
         }
       };
-      ws.onerror = () => ws.close();
     };
 
-    connect();
+    connectTimer = setTimeout(connect, 0);
 
     return () => {
-      closedRef.current = true;
-      if (reconnectRef.current) clearTimeout(reconnectRef.current);
-      wsRef.current?.close();
+      disposed = true;
+      if (connectTimer) clearTimeout(connectTimer);
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      if (openWatchdog) clearTimeout(openWatchdog);
+      if (ws) {
+        ws.onopen = ws.onmessage = ws.onclose = ws.onerror = null;
+        try {
+          ws.close();
+        } catch {
+          /* already closing */
+        }
+      }
     };
-  }, [setConnected, pushSnapshot]);
+  }, []);
 
-  // Slower poll for full status + alerts (heavier payloads).
+  // Slower poll for full status + alerts (heavier payloads than the socket).
   useEffect(() => {
+    const { setStatus } = useTelemetryStore.getState();
+    const { setActive } = useAlertStore.getState();
     let alive = true;
     const poll = async () => {
       try {
@@ -61,7 +103,7 @@ export function useTelemetry() {
         setStatus(status);
         setActive(alerts);
       } catch {
-        /* backend momentarily unreachable */
+        /* backend momentarily unreachable — WS status reflects connectivity */
       }
     };
     poll();
@@ -70,5 +112,5 @@ export function useTelemetry() {
       alive = false;
       clearInterval(id);
     };
-  }, [setStatus, setActive]);
+  }, []);
 }

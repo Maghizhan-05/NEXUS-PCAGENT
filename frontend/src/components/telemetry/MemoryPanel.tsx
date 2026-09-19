@@ -1,4 +1,3 @@
-import { MemoryStick } from "lucide-react";
 import { MetricCard } from "@/components/common/MetricCard";
 import { TelemetryChart } from "./TelemetryChart";
 import { useTelemetryStore } from "@/stores/telemetryStore";
@@ -15,14 +14,15 @@ export function MemoryPanel() {
 
   return (
     <MetricCard
-      icon={MemoryStick}
       label="Memory"
-      value={`${percent.toFixed(0)}%`}
-      sub={used && total ? `${formatBytes(used)} / ${formatBytes(total)}` : undefined}
+      storageKey="memory"
+      value={percent.toFixed(0)}
+      unit="%"
+      meta={used && total ? `${formatBytes(used)} / ${formatBytes(total)}` : undefined}
       percent={percent}
       kind="memory"
     >
-      <TelemetryChart id="mem" data={history} dataKey="memory" color="#5eead4" />
+      <TelemetryChart id="mem" data={history} dataKey="memory" color="#5b8cff" height={34} />
     </MetricCard>
   );
 }

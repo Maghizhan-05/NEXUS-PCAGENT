@@ -1,54 +1,61 @@
 import type { ReactNode } from "react";
-import type { LucideIcon } from "lucide-react";
-import { metricLevel } from "@/lib/status";
-import { levelColor } from "@/lib/status";
+import { metricLevel, levelColor } from "@/lib/status";
+import { PanelFrame } from "./PanelFrame";
 
 interface Props {
-  icon: LucideIcon;
   label: string;
+  storageKey: string;
   value: string;
-  sub?: string;
-  /** When provided, drives a thin utilization bar + color. */
+  unit?: string;
+  meta?: string;
   percent?: number;
   kind?: "cpu" | "memory" | "disk";
   children?: ReactNode;
 }
 
-export function MetricCard({ icon: Icon, label, value, sub, percent, kind, children }: Props) {
+export function MetricCard({ label, storageKey, value, unit, meta, percent, kind, children }: Props) {
   const level = percent != null && kind ? metricLevel(kind, percent) : null;
-  const color = level ? levelColor(level) : "#22d3ee";
+  const elevated = level != null && level !== "NORMAL";
+  const critical = level === "WARNING" || level === "CRITICAL";
+  const color = level ? levelColor(level) : "#2f6bff";
 
   return (
-    <div className="panel corner-bracket p-3">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2">
-          <Icon size={13} className="text-nexus-cyan" strokeWidth={1.5} />
-          <span className="panel-label">{label}</span>
-        </div>
-        {level && (
-          <span className="text-[9px] tracking-[0.2em]" style={{ color }}>
+    <PanelFrame
+      title={label}
+      storageKey={storageKey}
+      alert={critical}
+      right={
+        level && (
+          <span
+            className="font-mono text-[9px] tracking-widest2"
+            style={{ color: elevated ? color : "#47526f" }}
+          >
             {level}
           </span>
-        )}
-      </div>
-
-      <div className="mt-2 flex items-baseline gap-2">
-        <span className="text-2xl font-light tabular-nums text-nexus-white" style={{ color }}>
-          {value}
-        </span>
-        {sub && <span className="text-[10px] text-nexus-mute">{sub}</span>}
+        )
+      }
+      bodyClassName="flex flex-col gap-2"
+    >
+      <div className="flex items-end justify-between">
+        <div className="flex items-baseline gap-1">
+          <span className="metric-num text-4xl" style={elevated ? { color } : undefined}>
+            {value}
+          </span>
+          {unit && <span className="font-mono text-xs text-web-mute">{unit}</span>}
+        </div>
+        {meta && <span className="font-mono text-[10px] text-web-faint">{meta}</span>}
       </div>
 
       {percent != null && (
-        <div className="mt-2 h-[3px] w-full overflow-hidden bg-nexus-line">
+        <div className="h-[2px] w-full bg-web-hair">
           <div
-            className="h-full transition-all duration-500"
-            style={{ width: `${Math.min(percent, 100)}%`, backgroundColor: color, boxShadow: `0 0 8px ${color}` }}
+            className="h-[2px] transition-all duration-500"
+            style={{ width: `${Math.min(percent, 100)}%`, backgroundColor: color }}
           />
         </div>
       )}
 
-      {children && <div className="mt-2">{children}</div>}
-    </div>
+      {children}
+    </PanelFrame>
   );
 }

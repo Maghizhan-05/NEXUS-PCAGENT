@@ -1,4 +1,3 @@
-import { Cpu } from "lucide-react";
 import { MetricCard } from "@/components/common/MetricCard";
 import { TelemetryChart } from "./TelemetryChart";
 import { useTelemetryStore } from "@/stores/telemetryStore";
@@ -9,19 +8,20 @@ export function CpuPanel() {
   const history = useTelemetryStore((s) => s.history);
 
   const usage = latest?.cpu ?? status?.cpu.usage_percent ?? 0;
-  const cores = status?.cpu.logical_core_count;
-  const freq = status?.cpu.frequency_mhz;
+  const cores = status?.cpu.core_count;
+  const threads = status?.cpu.logical_core_count;
 
   return (
     <MetricCard
-      icon={Cpu}
-      label="Processor"
-      value={`${usage.toFixed(0)}%`}
-      sub={cores ? `${cores} threads${freq ? ` · ${(freq / 1000).toFixed(1)} GHz` : ""}` : undefined}
+      label="CPU Load"
+      storageKey="cpu"
+      value={usage.toFixed(0)}
+      unit="%"
+      meta={cores && threads ? `${cores} cores · ${threads} threads` : undefined}
       percent={usage}
       kind="cpu"
     >
-      <TelemetryChart id="cpu" data={history} dataKey="cpu" color="#22d3ee" />
+      <TelemetryChart id="cpu" data={history} dataKey="cpu" color="#2f6bff" height={34} />
     </MetricCard>
   );
 }

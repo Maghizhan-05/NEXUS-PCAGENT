@@ -1,60 +1,67 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, ShieldCheck } from "lucide-react";
+import { PanelFrame } from "@/components/common/PanelFrame";
 import { useAlertStore } from "@/stores/alertStore";
 import type { AlertSeverity } from "@/types/telemetry";
 
 const SEVERITY_COLOR: Record<AlertSeverity, string> = {
-  info: "#22d3ee",
-  warning: "#f5b642",
-  critical: "#f04a4a",
+  info: "#2f6bff",
+  warning: "#f0a92e",
+  critical: "#e5142a",
 };
 
 export function AlertPanel() {
   const alerts = useAlertStore((s) => s.active);
+  const hasAlerts = alerts.length > 0;
 
   return (
-    <div className="panel corner-bracket p-3">
-      <div className="flex items-center gap-2">
-        <AlertTriangle size={13} className="text-nexus-cyan" strokeWidth={1.5} />
-        <span className="panel-label">Alerts</span>
-      </div>
-
-      <div className="mt-2 space-y-2">
-        <AnimatePresence initial={false}>
-          {alerts.length === 0 ? (
-            <motion.div
-              key="clear"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center gap-2 text-[11px] text-nexus-mute"
-            >
-              <ShieldCheck size={13} className="text-nexus-cyan" />
-              No active alerts. All systems nominal.
-            </motion.div>
-          ) : (
-            alerts.map((a) => {
+    <PanelFrame
+      title="Spider-Sense"
+      storageKey="alerts"
+      alert={hasAlerts}
+      right={
+        <span
+          className="font-mono text-[9px] tracking-widest2"
+          style={{ color: hasAlerts ? "#e5142a" : "#47526f" }}
+        >
+          {hasAlerts ? `${alerts.length} ACTIVE` : "QUIET"}
+        </span>
+      }
+    >
+      <AnimatePresence initial={false}>
+        {!hasAlerts ? (
+          <motion.p
+            key="clear"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="font-mono text-[11px] text-web-mute"
+          >
+            Nothing's tingling. All systems steady.
+          </motion.p>
+        ) : (
+          <div className="space-y-2">
+            {alerts.map((a) => {
               const color = SEVERITY_COLOR[a.severity];
               return (
                 <motion.div
                   key={a.id}
                   layout
-                  initial={{ opacity: 0, x: -8 }}
+                  initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0 }}
                   className="border-l-2 pl-2"
                   style={{ borderColor: color }}
                 >
-                  <div className="text-[11px] tracking-[0.15em]" style={{ color }}>
+                  <div className="font-display text-[11px] uppercase tracking-wider" style={{ color }}>
                     {a.title}
                   </div>
-                  <div className="text-[10px] text-nexus-mute">{a.description}</div>
+                  <div className="font-mono text-[10px] text-web-faint">{a.description}</div>
                 </motion.div>
               );
-            })
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
+            })}
+          </div>
+        )}
+      </AnimatePresence>
+    </PanelFrame>
   );
 }
