@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { StatusIndicator } from "@/components/common/StatusIndicator";
+import { ConnectionBadge } from "@/components/common/ConnectionBadge";
+import { DisplayControls } from "@/components/common/DisplayControls";
 import { useTelemetryStore } from "@/stores/telemetryStore";
 import { formatClock } from "@/lib/formatters";
 
 export function Header() {
-  const connected = useTelemetryStore((s) => s.connected);
+  const hostname = useTelemetryStore((s) => s.status?.system.hostname);
   const [clock, setClock] = useState(formatClock(new Date()));
 
   useEffect(() => {
@@ -13,19 +14,22 @@ export function Header() {
   }, []);
 
   return (
-    <header className="flex items-center justify-between border-b border-nexus-line px-5 py-3">
-      <div>
-        <div className="text-xl tracking-[0.5em] text-glow text-nexus-cyan">NEXUS</div>
-        <div className="text-[9px] tracking-[0.35em] text-nexus-mute">
-          LOCAL SYSTEM INTELLIGENCE
-        </div>
+    <header className="flex shrink-0 items-center justify-between border-b border-web-line px-4 py-2">
+      <div className="flex items-baseline gap-3">
+        <span className="font-display text-2xl font-bold uppercase tracking-[0.22em] text-web-text">
+          NE<span className="text-web-red">X</span>US
+        </span>
+        <span className="hidden font-mono text-[10px] uppercase tracking-widest2 text-web-faint sm:inline">
+          web-shooter hud · {hostname ?? "local node"}
+        </span>
       </div>
-      <div className="flex items-center gap-6">
-        <StatusIndicator
-          color={connected ? "#22d3ee" : "#f5b642"}
-          label={connected ? "SYSTEM ONLINE" : "TELEMETRY OFFLINE · RECONNECTING"}
-        />
-        <div className="text-sm tabular-nums tracking-widest text-nexus-white/80">{clock}</div>
+
+      <div className="flex items-center gap-4">
+        <ConnectionBadge />
+        <span className="hidden font-display text-sm font-medium tabular tracking-wider text-web-mute md:inline">
+          {clock}
+        </span>
+        <DisplayControls />
       </div>
     </header>
   );

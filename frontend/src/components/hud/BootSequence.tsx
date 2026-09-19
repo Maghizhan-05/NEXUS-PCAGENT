@@ -1,13 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
-const ENGINES = [
-  "TELEMETRY ENGINE",
-  "PROCESS ENGINE",
-  "NETWORK ENGINE",
-  "ALERT ENGINE",
-  "VOICE INTERFACE",
-];
+const ENGINES = ["telemetry", "processes", "network", "spider-sense", "web-shooter"];
 
 interface Props {
   onComplete: () => void;
@@ -15,52 +9,54 @@ interface Props {
 
 export function BootSequence({ onComplete }: Props) {
   const [count, setCount] = useState(0);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
+  // Run the sequence exactly once on mount, independent of parent re-renders.
   useEffect(() => {
-    if (count >= ENGINES.length) {
-      const t = setTimeout(onComplete, 550);
-      return () => clearTimeout(t);
-    }
-    const t = setTimeout(() => setCount((c) => c + 1), 260);
-    return () => clearTimeout(t);
-  }, [count, onComplete]);
+    let cancelled = false;
+    let i = 0;
+    const tick = () => {
+      if (cancelled) return;
+      if (i >= ENGINES.length) {
+        setTimeout(() => !cancelled && onCompleteRef.current(), 420);
+        return;
+      }
+      i += 1;
+      setCount(i);
+      setTimeout(tick, 200);
+    };
+    const start = setTimeout(tick, 200);
+    return () => {
+      cancelled = true;
+      clearTimeout(start);
+    };
+  }, []);
 
   return (
     <motion.div
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-nexus-bg"
+      transition={{ duration: 0.4 }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-web-void"
     >
-      <div className="mb-8 text-center">
-        <div className="text-4xl tracking-[0.6em] text-glow text-nexus-cyan">NEXUS</div>
-        <div className="mt-2 text-[10px] tracking-[0.4em] text-nexus-mute">
-          NEXUS INITIALIZATION
-        </div>
+      <div className="mb-7 font-display text-4xl font-bold uppercase tracking-[0.3em] text-web-text text-glow-blue">
+        NE<span className="text-web-red">X</span>US
       </div>
-
-      <div className="w-72 space-y-2">
+      <div className="w-60 space-y-1.5">
         {ENGINES.map((name, i) => (
           <motion.div
             key={name}
-            initial={{ opacity: 0.15 }}
-            animate={{ opacity: i < count ? 1 : 0.15 }}
-            className="flex items-center justify-between text-[11px] tracking-[0.15em]"
+            initial={{ opacity: 0.12 }}
+            animate={{ opacity: i < count ? 1 : 0.12 }}
+            className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest2"
           >
-            <span className="text-nexus-white/70">{name}</span>
-            <span className={i < count ? "text-nexus-cyan" : "text-nexus-mute"}>
-              {i < count ? (name === "VOICE INTERFACE" ? "READY" : "ONLINE") : "…"}
+            <span className="text-web-mute">{name}</span>
+            <span className={i < count ? "text-web-blue" : "text-web-faint"}>
+              {i < count ? "online" : "…"}
             </span>
           </motion.div>
         ))}
       </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: count >= ENGINES.length ? 1 : 0 }}
-        className="mt-8 text-center"
-      >
-        <div className="text-lg tracking-[0.4em] text-nexus-cyan">SYSTEM ONLINE</div>
-      </motion.div>
     </motion.div>
   );
 }

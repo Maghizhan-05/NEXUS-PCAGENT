@@ -3,6 +3,13 @@ import type { SystemStatus, TelemetrySnapshot } from "@/types/telemetry";
 
 const HISTORY_CAP = 60;
 
+export type ConnectionStatus =
+  | "connecting"
+  | "connected"
+  | "reconnecting"
+  | "disconnected"
+  | "error";
+
 export interface HistoryPoint {
   t: number;
   cpu: number;
@@ -12,21 +19,24 @@ export interface HistoryPoint {
 }
 
 interface TelemetryState {
-  connected: boolean;
+  connection: ConnectionStatus;
+  /** epoch ms of the last telemetry frame actually received. */
+  lastMessageAt: number | null;
   latest: TelemetrySnapshot | null;
   status: SystemStatus | null;
   history: HistoryPoint[];
-  setConnected: (v: boolean) => void;
+  setConnection: (c: ConnectionStatus) => void;
   pushSnapshot: (s: TelemetrySnapshot) => void;
   setStatus: (s: SystemStatus) => void;
 }
 
 export const useTelemetryStore = create<TelemetryState>((set) => ({
-  connected: false,
+  connection: "connecting",
+  lastMessageAt: null,
   latest: null,
   status: null,
   history: [],
-  setConnected: (v) => set({ connected: v }),
+  setConnection: (c) => set({ connection: c }),
   pushSnapshot: (s) =>
     set((state) => {
       const point: HistoryPoint = {
@@ -38,7 +48,7 @@ export const useTelemetryStore = create<TelemetryState>((set) => ({
       };
       const history = [...state.history, point];
       if (history.length > HISTORY_CAP) history.shift();
-      return { latest: s, history };
+      return { latest: s, history, lastMessageAt: Date.now() };
     }),
   setStatus: (s) => set({ status: s }),
 }));

@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 
-import { HudBackground } from "@/components/hud/HudBackground";
-import { Scanlines } from "@/components/hud/Scanlines";
-import { Reticle } from "@/components/hud/Reticle";
+import { WebBackground } from "@/components/hud/WebBackground";
 import { Header } from "@/components/hud/Header";
+import { Footer } from "@/components/hud/Footer";
 import { BootSequence } from "@/components/hud/BootSequence";
-import { NexusCore } from "@/components/hud/NexusCore";
+import { SpiderCore } from "@/components/hud/SpiderCore";
 
 import { CpuPanel } from "@/components/telemetry/CpuPanel";
 import { MemoryPanel } from "@/components/telemetry/MemoryPanel";
@@ -19,20 +18,24 @@ import { VoiceInterface } from "@/components/voice/VoiceInterface";
 import { CommandConsole } from "@/components/common/CommandConsole";
 
 import { useTelemetry } from "@/hooks/useTelemetry";
+import { useDisplayScale } from "@/hooks/useDisplayScale";
 import { api } from "@/lib/api";
 import { useTelemetryStore } from "@/stores/telemetryStore";
 import { useVoiceStore } from "@/stores/voiceStore";
+import { useAlertStore } from "@/stores/alertStore";
 import { overallStatus } from "@/lib/status";
 import type { CoreState } from "@/types/telemetry";
 
 export default function App() {
   const [booting, setBooting] = useState(true);
   useTelemetry();
+  useDisplayScale();
 
   const latest = useTelemetryStore((s) => s.latest);
   const status = useTelemetryStore((s) => s.status);
   const voiceState = useVoiceStore((s) => s.state);
   const setVoiceAvailable = useVoiceStore((s) => s.setAvailable);
+  const alertCount = useAlertStore((s) => s.active.length);
 
   useEffect(() => {
     api
@@ -46,7 +49,6 @@ export default function App() {
   const disk = status?.disk.percent ?? 0;
   const overall = useMemo(() => overallStatus(cpu, mem, disk), [cpu, mem, disk]);
 
-  // Voice state takes priority; otherwise reflect system health.
   const coreState: CoreState = useMemo(() => {
     if (voiceState === "listening") return "listening";
     if (voiceState === "thinking") return "thinking";
@@ -59,63 +61,61 @@ export default function App() {
     coreState === "listening"
       ? "LISTENING"
       : coreState === "thinking"
-        ? "ANALYZING"
+        ? "CONNECTING"
         : coreState === "speaking"
           ? "RESPONDING"
           : coreState === "warning"
             ? overall.level
-            : "ONLINE";
+            : `${cpu.toFixed(0)}% CPU`;
+
+  // Spider-sense fires on a warning/critical system state or any active alert.
+  const sense =
+    overall.level === "WARNING" || overall.level === "CRITICAL" || alertCount > 0 ? 1 : 0;
 
   return (
-    <>
-      <HudBackground />
-      <Scanlines />
-      <Reticle />
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-web-void text-web-text">
+      <WebBackground sense={sense} />
 
       <AnimatePresence>
         {booting && <BootSequence onComplete={() => setBooting(false)} />}
       </AnimatePresence>
 
-      {!booting && (
-        <div className="flex h-screen flex-col">
-          <Header />
+      <Header />
 
-          <main className="grid flex-1 grid-cols-12 gap-3 overflow-hidden p-3">
-            {/* Left column */}
-            <section className="col-span-3 flex flex-col gap-3 overflow-y-auto">
+      <main
+        className="min-h-0 flex-1 overflow-y-auto lg:overflow-hidden"
+        style={{ zoom: "var(--nexus-scale)" } as React.CSSProperties}
+      >
+        <div className="flex min-h-full flex-col gap-2 p-2 lg:h-full lg:gap-3 lg:p-3">
+          {/* Primary region: telemetry / core / telemetry */}
+          <div className="grid grid-cols-1 gap-2 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(200px,1fr)_minmax(0,1.5fr)_minmax(200px,1fr)] lg:gap-3 xl:grid-cols-[minmax(220px,0.9fr)_minmax(0,1.7fr)_minmax(220px,0.9fr)]">
+            <section className="flex min-h-0 flex-col gap-2 lg:gap-3 lg:overflow-y-auto">
               <CpuPanel />
               <MemoryPanel />
               <SystemStatusPanel />
             </section>
 
-            {/* Center */}
-            <section className="col-span-6 flex flex-col items-center justify-between gap-3">
-              <div className="flex flex-1 items-center justify-center">
-                <NexusCore
-                  state={coreState}
-                  label={coreLabel}
-                  sublabel="NEXUS CORE"
-                  intensity={cpu}
-                />
-              </div>
-              <div className="grid w-full grid-cols-2 gap-3">
-                <ProcessPanel />
-                <VoiceInterface />
-              </div>
+            <section className="flex min-h-[280px] items-center justify-center lg:min-h-0">
+              <SpiderCore state={coreState} label={coreLabel} sublabel="SPIDER CORE" load={cpu} />
             </section>
 
-            {/* Right column */}
-            <section className="col-span-3 flex flex-col gap-3 overflow-y-auto">
+            <section className="flex min-h-0 flex-col gap-2 lg:gap-3 lg:overflow-y-auto">
               <NetworkPanel />
               <DiskPanel />
               <AlertPanel />
-              <div className="min-h-[160px] flex-1">
-                <CommandConsole />
-              </div>
             </section>
-          </main>
+          </div>
+
+          {/* Secondary region: process / voice / console */}
+          <div className="grid shrink-0 grid-cols-1 gap-2 md:grid-cols-[1.5fr_1fr_1fr] lg:h-[clamp(160px,24vh,230px)] lg:gap-3 [&>*]:min-h-[150px] lg:[&>*]:min-h-0">
+            <ProcessPanel />
+            <VoiceInterface />
+            <CommandConsole />
+          </div>
         </div>
-      )}
-    </>
+      </main>
+
+      <Footer />
+    </div>
   );
 }

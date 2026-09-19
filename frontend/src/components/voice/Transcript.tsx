@@ -11,24 +11,24 @@ export function Transcript() {
 
   if (transcript.length === 0) {
     return (
-      <div className="text-[10px] text-nexus-mute">
-        Transcript will appear here once you speak with NEXUS.
-      </div>
+      <p className="font-mono text-[10px] leading-relaxed text-nexus-faint">
+        “How is my system?” · “What's using the most memory?”
+      </p>
     );
   }
 
   return (
-    <div className="max-h-24 space-y-2 overflow-y-auto pr-1">
+    <div className="max-h-full space-y-1.5 overflow-y-auto pr-1">
       {transcript.map((entry) => (
-        <div key={entry.id}>
-          <div
-            className={`text-[9px] tracking-[0.25em] ${
-              entry.role === "user" ? "text-nexus-mute" : "text-nexus-cyan"
+        <div key={entry.id} className="flex gap-2">
+          <span
+            className={`shrink-0 font-mono text-[9px] tracking-wider ${
+              entry.role === "user" ? "text-nexus-faint" : "text-nexus-cyan"
             }`}
           >
-            {entry.role === "user" ? "YOU" : "NEXUS"}
-          </div>
-          <div className="text-[11px] text-nexus-white/85">{entry.text}</div>
+            {entry.role === "user" ? "YOU" : "NX"}
+          </span>
+          <span className="font-mono text-[11px] leading-snug text-nexus-text/85">{entry.text}</span>
         </div>
       ))}
       <div ref={endRef} />

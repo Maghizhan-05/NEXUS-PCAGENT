@@ -5,38 +5,66 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Web-shooter HUD: midnight suit-black base. Blue = calm/healthy,
+        // red = spider-sense (alerts, elevated load, interaction).
+        web: {
+          void: "#080b16",
+          panel: "#0d1327",
+          plate: "#111a35",
+          line: "#20305c",
+          hair: "#16223f",
+          text: "#e8eeff",
+          mute: "#7a88ab",
+          faint: "#47526f",
+          blue: "#2f6bff",
+          bluedim: "#1b3a86",
+          red: "#e5142a",
+          reddim: "#7a1520",
+          amber: "#f0a92e",
+          silver: "#aab7d6",
+        },
+        // Back-compat aliases so existing components inherit the new palette.
         nexus: {
-          bg: "#05070a",
-          panel: "#0a0e14",
-          line: "#16202c",
-          cyan: "#22d3ee",
-          cyandim: "#0e7490",
-          white: "#e6f1f5",
-          mute: "#5b6b78",
-          amber: "#f5b642",
-          red: "#f04a4a",
+          bg: "#080b16",
+          surface: "#0d1327",
+          raised: "#111a35",
+          line: "#20305c",
+          hair: "#16223f",
+          text: "#e8eeff",
+          mute: "#7a88ab",
+          faint: "#47526f",
+          cyan: "#2f6bff",
+          cyandim: "#1b3a86",
+          red: "#e5142a",
+          amber: "#f0a92e",
+          green: "#2f6bff",
         },
       },
       fontFamily: {
-        mono: ["'JetBrains Mono'", "'SF Mono'", "Menlo", "Consolas", "monospace"],
+        display: ["Oswald", "Impact", "system-ui", "sans-serif"],
+        mono: ["'JetBrains Mono'", "Consolas", "monospace"],
       },
-      boxShadow: {
-        glow: "0 0 20px rgba(34,211,238,0.15)",
-        glowstrong: "0 0 30px rgba(34,211,238,0.35)",
+      letterSpacing: {
+        widest2: "0.3em",
       },
       keyframes: {
-        scan: {
-          "0%": { transform: "translateY(-100%)" },
-          "100%": { transform: "translateY(100%)" },
+        thwip: {
+          "0%": { transform: "scale(0.2)", opacity: "0.9" },
+          "100%": { transform: "scale(2.4)", opacity: "0" },
         },
-        flicker: {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.85" },
+        senseP: {
+          "0%, 100%": { opacity: "0.25" },
+          "50%": { opacity: "0.7" },
+        },
+        sweep: {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
         },
       },
       animation: {
-        scan: "scan 6s linear infinite",
-        flicker: "flicker 4s ease-in-out infinite",
+        thwip: "thwip 0.5s ease-out forwards",
+        senseP: "senseP 1.4s ease-in-out infinite",
+        sweep: "sweep 6s linear infinite",
       },
     },
   },

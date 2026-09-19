@@ -1,4 +1,5 @@
-import { ArrowDown, ArrowUp, Wifi } from "lucide-react";
+import { ArrowDown, ArrowUp } from "lucide-react";
+import { PanelFrame } from "@/components/common/PanelFrame";
 import { TelemetryChart } from "./TelemetryChart";
 import { useTelemetryStore } from "@/stores/telemetryStore";
 import { formatRate } from "@/lib/formatters";
@@ -6,35 +7,37 @@ import { formatRate } from "@/lib/formatters";
 export function NetworkPanel() {
   const latest = useTelemetryStore((s) => s.latest);
   const history = useTelemetryStore((s) => s.history);
+  const connection = useTelemetryStore((s) => s.connection);
 
   const up = latest?.upload ?? 0;
   const down = latest?.download ?? 0;
+  const offline = connection !== "connected";
 
   return (
-    <div className="panel corner-bracket p-3">
-      <div className="flex items-center gap-2">
-        <Wifi size={13} className="text-nexus-cyan" strokeWidth={1.5} />
-        <span className="panel-label">Network</span>
-      </div>
-
-      <div className="mt-2 grid grid-cols-2 gap-2">
-        <div>
-          <div className="flex items-center gap-1 text-[10px] text-nexus-mute">
-            <ArrowDown size={11} className="text-nexus-cyan" /> DOWN
-          </div>
-          <div className="text-sm tabular-nums text-nexus-white">{formatRate(down)}</div>
+    <PanelFrame
+      title="Network"
+      storageKey="network"
+      right={<span className="font-mono text-[9px] tracking-widest2 text-web-faint">60s</span>}
+      bodyClassName="flex flex-col gap-2"
+    >
+      <div className="grid grid-cols-2 gap-2 font-mono">
+        <div className="flex items-center gap-1.5">
+          <ArrowDown size={13} className="text-web-blue" strokeWidth={2.2} />
+          <span className="tabular text-sm text-web-text">{offline ? "—" : formatRate(down)}</span>
         </div>
-        <div>
-          <div className="flex items-center gap-1 text-[10px] text-nexus-mute">
-            <ArrowUp size={11} className="text-nexus-cyan" /> UP
-          </div>
-          <div className="text-sm tabular-nums text-nexus-white">{formatRate(up)}</div>
+        <div className="flex items-center justify-end gap-1.5">
+          <ArrowUp size={13} className="text-web-silver" strokeWidth={2.2} />
+          <span className="tabular text-sm text-web-mute">{offline ? "—" : formatRate(up)}</span>
         </div>
       </div>
-
-      <div className="mt-2">
-        <TelemetryChart id="net-down" data={history} dataKey="download" color="#22d3ee" percent={false} />
-      </div>
-    </div>
+      <TelemetryChart
+        id="net-down"
+        data={history}
+        dataKey="download"
+        color="#2f6bff"
+        percent={false}
+        height={34}
+      />
+    </PanelFrame>
   );
 }

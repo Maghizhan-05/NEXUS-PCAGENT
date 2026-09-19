@@ -89,11 +89,14 @@ export function CommandConsole() {
   };
 
   return (
-    <div className="panel corner-bracket flex h-full flex-col p-3">
-      <span className="panel-label">Command Interface</span>
-      <div className="mt-2 flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed">
+    <div className="panel">
+      <div className="panel-head">
+        <span className="panel-title">Console</span>
+        <span className="font-mono text-[9px] tracking-widest2 text-nexus-faint">help</span>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2 font-mono text-[11px] leading-relaxed">
         {lines.map((l) => (
-          <div key={l.id} className={l.kind === "in" ? "text-nexus-cyan" : "text-nexus-white/70"}>
+          <div key={l.id} className={l.kind === "in" ? "text-nexus-cyan" : "text-nexus-mute"}>
             <pre className="whitespace-pre-wrap font-mono">{l.text}</pre>
           </div>
         ))}
@@ -104,15 +107,16 @@ export function CommandConsole() {
           run(input);
           setInput("");
         }}
-        className="mt-2 flex items-center gap-1 border-t border-nexus-line pt-2"
+        className="flex items-center gap-1 border-t border-nexus-hair px-3 py-2"
       >
-        <ChevronRight size={13} className="text-nexus-cyan" />
+        <ChevronRight size={12} className="text-nexus-cyan" />
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           spellCheck={false}
+          aria-label="NEXUS command input"
           placeholder="type a command…"
-          className="flex-1 bg-transparent text-[11px] text-nexus-white placeholder:text-nexus-mute focus:outline-none"
+          className="flex-1 bg-transparent font-mono text-[11px] text-nexus-text placeholder:text-nexus-faint focus:outline-none"
         />
       </form>
     </div>

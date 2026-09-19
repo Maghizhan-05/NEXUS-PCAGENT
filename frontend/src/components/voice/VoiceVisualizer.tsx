@@ -9,13 +9,13 @@ const BARS = 24;
 
 export function VoiceVisualizer({ state }: Props) {
   const active = state === "listening" || state === "speaking";
-  const color = state === "speaking" ? "#5eead4" : state === "error" ? "#f04a4a" : "#22d3ee";
+  const color = state === "speaking" ? "#5b8cff" : state === "error" ? "#e5142a" : "#2f6bff";
 
   return (
-    <div className="flex h-8 items-center justify-center gap-[3px]">
+    <div className="flex h-6 items-center justify-center gap-[3px]">
       {Array.from({ length: BARS }).map((_, i) => {
-        const base = 3;
-        const peak = active ? 4 + Math.abs(Math.sin(i * 0.9)) * 20 : base;
+        const base = 2;
+        const peak = active ? 3 + Math.abs(Math.sin(i * 0.9)) * 16 : base;
         return (
           <motion.span
             key={i}
