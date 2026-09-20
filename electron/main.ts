@@ -67,18 +67,38 @@ async function startBackend(): Promise<void> {
   }
 
   const dir = backendDir();
-  const py = pythonPath(dir);
-  if (!existsSync(py)) {
-    log("WARNING: python not found at", py, "— skipping backend spawn (dev: create the venv)");
-    return;
-  }
 
-  log("spawning backend:", py);
-  backend = spawn(
-    py,
-    ["-m", "uvicorn", "app.main:app", "--host", BACKEND_HOST, "--port", String(BACKEND_PORT)],
-    { cwd: dir, windowsHide: true }
-  );
+  if (DEV) {
+    // Dev: run uvicorn from the project venv.
+    const py = pythonPath(dir);
+    if (!existsSync(py)) {
+      log("WARNING: python not found at", py, "— skipping backend spawn (create the venv)");
+      return;
+    }
+    log("spawning backend (dev):", py);
+    backend = spawn(
+      py,
+      ["-m", "uvicorn", "app.main:app", "--host", BACKEND_HOST, "--port", String(BACKEND_PORT)],
+      { cwd: dir, windowsHide: true }
+    );
+  } else {
+    // Packaged: run the standalone PyInstaller backend, and tell it where the
+    // built frontend lives so it serves the UI same-origin.
+    const exe = path.join(
+      dir,
+      process.platform === "win32" ? "nexus-backend.exe" : "nexus-backend"
+    );
+    if (!existsSync(exe)) {
+      log("ERROR: packaged backend not found at", exe);
+      return;
+    }
+    log("spawning backend (packaged):", exe);
+    backend = spawn(exe, [], {
+      cwd: dir,
+      windowsHide: true,
+      env: { ...process.env, NEXUS_STATIC_DIR: path.join(process.resourcesPath, "frontend") },
+    });
+  }
   backend.stdout?.on("data", (d) => process.stdout.write(`[backend] ${d}`));
   backend.stderr?.on("data", (d) => process.stdout.write(`[backend] ${d}`));
   backend.on("exit", (code) => log("backend exited:", code));
@@ -171,10 +191,9 @@ function createWindow() {
 
   if (DEV) {
     mainWindow.loadURL(DEV_URL);
-  } else {
-    const indexHtml = path.join(process.resourcesPath, "frontend", "index.html");
-    mainWindow.loadFile(indexHtml);
   }
+  // In prod we load http://127.0.0.1:8000 after the backend is healthy (it
+  // serves the UI same-origin) — see app.whenReady below.
 
   mainWindow.on("close", (e) => {
     // First close hides to tray; Quit (or macOS) actually exits.
@@ -209,9 +228,16 @@ if (!app.requestSingleInstanceLock()) {
     // Renderer can pull the latest sensor snapshot on demand (initial paint).
     ipcMain.handle("nexus:get-sensors", () => readSensors());
     // And receive a push every couple of seconds.
-    startSensorLoop(() => mainWindow, 2000);
+    startSensorLoop(() => mainWindow, 4000);
 
     await startBackend();
+
+    // Packaged build: the backend serves the UI, so load it now that it's up.
+    if (!DEV) {
+      const ok = await waitForBackend();
+      if (ok) mainWindow?.loadURL(`http://${BACKEND_HOST}:${BACKEND_PORT}/`);
+      else log("backend never became healthy — UI cannot load");
+    }
 
     app.on("activate", () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow();

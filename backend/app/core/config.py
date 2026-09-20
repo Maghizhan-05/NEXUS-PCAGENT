@@ -20,6 +20,10 @@ class Settings:
         self.cors_origins: list[str] = [o.strip() for o in origins.split(",") if o.strip()]
         self.telemetry_interval: float = float(os.getenv("NEXUS_TELEMETRY_INTERVAL", "1.0"))
 
+        # In a packaged build the backend also serves the built frontend, so the
+        # desktop app loads UI + API same-origin (no file:// / CORS issues).
+        self.static_dir: str = os.getenv("NEXUS_STATIC_DIR", "")
+
         # ElevenLabs (server-side only — never exposed to the browser).
         self.elevenlabs_api_key: str = os.getenv("ELEVENLABS_API_KEY", "")
         self.elevenlabs_agent_id: str = os.getenv("ELEVENLABS_AGENT_ID", "")

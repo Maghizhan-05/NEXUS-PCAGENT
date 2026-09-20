@@ -1,8 +1,11 @@
 """NEXUS FastAPI application entrypoint."""
 from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api import health, processes, system, voice
 from app.core.config import get_settings
@@ -33,6 +36,12 @@ app.include_router(voice.router, prefix="/api")
 app.include_router(telemetry_socket.router)
 
 
-@app.get("/")
-def root() -> dict:
-    return {"name": "NEXUS Core", "status": "online", "docs": "/api/docs"}
+# Serve the built frontend in a packaged build (mounted last so /api and /ws
+# win). In dev this dir is empty and Vite serves the UI instead.
+if settings.static_dir and os.path.isdir(settings.static_dir):
+    app.mount("/", StaticFiles(directory=settings.static_dir, html=True), name="ui")
+else:
+
+    @app.get("/")
+    def root() -> dict:
+        return {"name": "NEXUS Core", "status": "online", "docs": "/api/docs"}

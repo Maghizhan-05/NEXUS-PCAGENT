@@ -10,9 +10,14 @@
     "dev:frontend": "cd frontend && npm run dev",
     "install:frontend": "cd frontend && npm install",
     "electron:build": "esbuild electron/main.ts electron/preload.ts --bundle --platform=node --target=node18 --format=cjs --external:electron --external:systeminformation --outdir=dist-electron",
+    "free-ports": "node scripts/free-ports.mjs",
     "electron:launch": "wait-on http://localhost:5173 && electron .",
-    "electron:dev": "npm run electron:build && concurrently -k -n vite,electron -c magenta,green \"npm:dev:frontend\" \"npm:electron:launch\"",
-    "electron:preview": "npm run electron:build && electron ."
+    "electron:dev": "npm run free-ports && npm run electron:build && concurrently -k -n vite,electron -c magenta,green \"npm:dev:frontend\" \"npm:electron:launch\"",
+    "electron:preview": "npm run electron:build && electron .",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && .venv/Scripts/python -m PyInstaller --onefile --name nexus-backend --collect-all uvicorn --collect-submodules app --hidden-import=websockets --hidden-import=httptools --noconfirm run.py",
+    "dist": "npm run electron:build && npm run build:frontend && npm run build:backend && electron-builder --win",
+    "dist:dir": "npm run electron:build && npm run build:frontend && npm run build:backend && electron-builder --win --dir"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
@@ -25,26 +30,27 @@
   "build": {
     "appId": "com.nexus.systemhud",
     "productName": "NEXUS",
+    "asar": true,
     "files": [
-      "dist-electron/**/*"
+      "dist-electron/**/*",
+      "package.json",
+      "node_modules/systeminformation/**/*"
     ],
     "extraResources": [
-      {
-        "from": "frontend/dist",
-        "to": "frontend"
-      },
-      {
-        "from": "backend",
-        "to": "backend",
-        "filter": [
-          "**/*",
-          "!.venv/**",
-          "!__pycache__/**"
-        ]
-      }
+      { "from": "frontend/dist", "to": "frontend" },
+      { "from": "backend/dist/nexus-backend.exe", "to": "backend/nexus-backend.exe" }
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "artifactName": "NEXUS-Setup-${version}.${ext}",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "NEXUS"
     },
     "directories": {
       "output": "release"

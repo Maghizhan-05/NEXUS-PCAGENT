@@ -8,6 +8,8 @@ export function useProcesses(sort: "cpu" | "memory") {
   useEffect(() => {
     let alive = true;
     const poll = async () => {
+      // Skip while the window is hidden — enumerating processes is not cheap.
+      if (document.hidden) return;
       try {
         const list = await api.processes(sort, 8);
         if (alive) setProcesses(list.processes);
@@ -16,7 +18,7 @@ export function useProcesses(sort: "cpu" | "memory") {
       }
     };
     poll();
-    const id = setInterval(poll, 2500);
+    const id = setInterval(poll, 4000);
     return () => {
       alive = false;
       clearInterval(id);

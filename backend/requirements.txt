@@ -6,3 +6,5 @@ python-dotenv==1.0.1
 websockets==14.1
 httpx==0.28.1
 pytest==8.3.4
+# Build-only: freezes the backend into a standalone exe for packaging.
+pyinstaller==6.22.3
