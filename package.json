@@ -10,8 +10,9 @@
     "dev:frontend": "cd frontend && npm run dev",
     "install:frontend": "cd frontend && npm install",
     "electron:build": "esbuild electron/main.ts electron/preload.ts --bundle --platform=node --target=node18 --format=cjs --external:electron --external:systeminformation --outdir=dist-electron",
+    "free-ports": "node scripts/free-ports.mjs",
     "electron:launch": "wait-on http://localhost:5173 && electron .",
-    "electron:dev": "npm run electron:build && concurrently -k -n vite,electron -c magenta,green \"npm:dev:frontend\" \"npm:electron:launch\"",
+    "electron:dev": "npm run free-ports && npm run electron:build && concurrently -k -n vite,electron -c magenta,green \"npm:dev:frontend\" \"npm:electron:launch\"",
     "electron:preview": "npm run electron:build && electron ."
   },
   "devDependencies": {

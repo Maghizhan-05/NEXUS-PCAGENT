@@ -32,7 +32,10 @@ export function CommandConsole() {
   ]);
 
   const emit = (texts: string[], kind: "in" | "out" = "out") =>
-    setLines((prev) => [...prev, ...texts.map((t) => ({ id: uid++, text: t, kind }))]);
+    setLines((prev) =>
+      // Cap the scrollback so a long-running session can't grow unbounded.
+      [...prev, ...texts.map((t) => ({ id: uid++, text: t, kind }))].slice(-200)
+    );
 
   const run = async (raw: string) => {
     const cmd = raw.trim().toLowerCase();

@@ -97,6 +97,7 @@ export function useTelemetry() {
     const { setActive } = useAlertStore.getState();
     let alive = true;
     const poll = async () => {
+      if (document.hidden) return; // pause polling when minimized to tray
       try {
         const [status, alerts] = await Promise.all([api.systemStatus(), api.alerts()]);
         if (!alive) return;
@@ -107,7 +108,7 @@ export function useTelemetry() {
       }
     };
     poll();
-    const id = setInterval(poll, 3000);
+    const id = setInterval(poll, 4000);
     return () => {
       alive = false;
       clearInterval(id);
