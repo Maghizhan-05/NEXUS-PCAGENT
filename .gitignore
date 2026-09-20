@@ -14,6 +14,10 @@ dist/
 dist-electron/
 release/
 
+# PyInstaller build outputs
+build/
+*.spec
+
 # Env & secrets
 .env
 .env.local
